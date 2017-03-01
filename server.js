@@ -1,26 +1,26 @@
 const express = require('express');
-const cluster = require('cluster');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const flash = require('connect-flash');
+const flash = require('express-flash');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const session = require('express-session');
 
 const initRoutes = require('./app/routes.js');
 const configDB = require('./config/database.js');
 const port = process.env.PORT || 5000;
 
-var app = express();
+let app = express();
 
+mongoose.Promise = global.Promise;
 mongoose.connect(configDB.url);
 require('./config/passport.js')(passport);
 
 app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(bodyParser());
-app.use(session({ secret: 'ilovescotchscotchyscotchscotch' }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(require('./lib/express-session'));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
